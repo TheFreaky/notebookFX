@@ -27,13 +27,15 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TableView<Event> textView;
     @FXML
-    private TableColumn<Event, String> id, name, description;
+    private TableColumn<Event, String> name, description;
+    @FXML
+    private TableColumn<Event, Long> id;
     @FXML
     private TableColumn<Event, Date> date;
 
     private EventService eventService = new EventService();
     private ObservableList<Event> observList = FXCollections.observableArrayList();
-    private String key;
+    private Long key;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,47 +48,30 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void read() {
-        textView.getItems().clear();
         List<Event> list = eventService.getAll();
-        observList.addAll(list);
-
-        id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        name.setCellValueFactory(new PropertyValueFactory<>("name"));
-        description.setCellValueFactory(new PropertyValueFactory<>("description"));
-        date.setCellValueFactory(new PropertyValueFactory<>("date"));
-
-        textView.setItems(observList);
+        showItems(list);
     }
 
     public void find() {
         tFind.setOnKeyReleased(event -> {
-            textView.getItems().clear();
-
             if (tFind.getText().isEmpty() || tFind.getText() == null) {
                 read();
                 return;
             }
 
             List<Event> list = eventService.find(tFind.getText());
-            observList.addAll(list);
-
-            id.setCellValueFactory(new PropertyValueFactory<>("id"));
-            name.setCellValueFactory(new PropertyValueFactory<>("name"));
-            description.setCellValueFactory(new PropertyValueFactory<>("description"));
-            date.setCellValueFactory(new PropertyValueFactory<>("date"));
-
-            textView.setItems(observList);
+            showItems(list);
         });
     }
 
     public void selectRow() {
         textView.setOnMouseClicked(event -> {
             int index = textView.getSelectionModel().getSelectedIndex();
-            key = String.valueOf(id.getCellData(index));
+            key = id.getCellData(index);
             tName.setText(name.getCellData(index));
             tDescription.setText(description.getCellData(index));
             Date indexDate = date.getCellData(index);
-            if (indexDate == null) return;
+            if (indexDate == null) return; //ToDo: throw exception
             LocalDate localDate = indexDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             datePick.setValue(localDate);
         });
@@ -101,11 +86,7 @@ public class FXMLDocumentController implements Initializable {
 
     public void save() {
         bSave.setOnAction(e -> {
-            Event event = new Event();
-            event.setName(tName.getText());
-            event.setDescription(tDescription.getText());
-            Date date = Date.from(datePick.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
-            event.setDate(date);
+            Event event = new Event(tName.getText(), tDescription.getText(), getDate());
             eventService.save(event);
             clear();
             read();
@@ -114,12 +95,7 @@ public class FXMLDocumentController implements Initializable {
 
     public void update() {
         bUpdate.setOnAction(e -> {
-            Event event = new Event();
-            event.setId(Long.parseLong(key));
-            event.setName(tName.getText());
-            event.setDescription(tDescription.getText());
-            Date date = Date.from(datePick.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
-            event.setDate(date);
+            Event event = new Event(key, tName.getText(), tDescription.getText(), getDate());
             eventService.update(event);
             clear();
             read();
@@ -128,13 +104,28 @@ public class FXMLDocumentController implements Initializable {
 
     public void delete() {
         bDelete.setOnAction(e -> {
-            Event event = new Event();
-            event.setId(Long.parseLong(key));
-            Date date = Date.from(datePick.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
-            event.setDate(date);
+            Event event = new Event(key, getDate());
             eventService.delete(event);
             clear();
             read();
         });
+    }
+
+    private void showItems(List<Event> list) {
+        textView.getItems().clear();
+        observList.addAll(list);
+
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        name.setCellValueFactory(new PropertyValueFactory<>("name"));
+        description.setCellValueFactory(new PropertyValueFactory<>("description"));
+        date.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        textView.setItems(observList);
+    }
+
+    private Date getDate() {
+        return Date.from(datePick.getValue()
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant());
     }
 }

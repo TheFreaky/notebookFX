@@ -10,9 +10,6 @@ import ru.kpfu.itis.notebook.util.HibernateUtil;
 
 import java.io.IOException;
 
-/**
- * Created by Максим on 13.04.2017.
- */
 public class App extends Application {
     private Stage primaryStage;
 
@@ -28,7 +25,6 @@ public class App extends Application {
 
     public void showPersonOverview() {
         try {
-            // Загружаем сведения об адресатах.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXMLDocument.fxml"));
             AnchorPane eventOverview = loader.load();
 

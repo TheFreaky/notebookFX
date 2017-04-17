@@ -28,6 +28,11 @@ public class Event implements Serializable {
         this.date = date;
     }
 
+    public Event(Long id, Date date) {
+        this.id = id;
+        this.date = date;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //used for primary key value generation
     public Long getId() {
