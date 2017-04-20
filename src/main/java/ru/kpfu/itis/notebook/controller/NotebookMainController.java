@@ -1,19 +1,27 @@
 package ru.kpfu.itis.notebook.controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import ru.kpfu.itis.notebook.entity.Event;
 import ru.kpfu.itis.notebook.entity.User;
 import ru.kpfu.itis.notebook.model.EventModel;
+import ru.kpfu.itis.notebook.util.HibernateUtil;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -28,7 +36,7 @@ public class NotebookMainController implements Initializable {
     @FXML
     private DatePicker datePick;
     @FXML
-    private Button bSave, bUpdate, bDelete;
+    private Button bSave, bUpdate, bDelete, bSignOut;
     @FXML
     private TableView<Event> textView;
     @FXML
@@ -63,6 +71,7 @@ public class NotebookMainController implements Initializable {
         update();
         delete();
         selectRow();
+        signOut();
     }
 
     public void read() {
@@ -128,6 +137,33 @@ public class NotebookMainController implements Initializable {
             clear();
             read();
         });
+    }
+
+    public void signOut() {
+        bSignOut.setOnAction(e -> {
+            ((Node) e.getSource()).getScene().getWindow().hide();
+            try {
+                getSignInWindow();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+    }
+
+    private void getSignInWindow() throws IOException {
+        String userWindowPath = "/ru/kpfu/itis/notebook/view/LoginWindow.fxml";
+        Stage primaryStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        Pane root = loader.load(getClass().getResource(userWindowPath).openStream());
+
+        Scene scene = new Scene(root);
+        primaryStage.setOnCloseRequest(event -> {
+            HibernateUtil.close();
+            primaryStage.close();
+            Platform.exit();
+        });
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private void showItems(List<Event> list) {

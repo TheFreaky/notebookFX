@@ -59,11 +59,12 @@
                         </DatePicker>
                      </children>
                   </GridPane>
-                  <ButtonBar layoutX="150.0" layoutY="244.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
+                  <ButtonBar layoutX="150.0" layoutY="244.0" prefHeight="40.0" prefWidth="351.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
                     <buttons>
                       <Button fx:id="bSave" mnemonicParsing="false" text="Save" />
                         <Button fx:id="bUpdate" mnemonicParsing="false" text="Update" />
                         <Button fx:id="bDelete" mnemonicParsing="false" text="Delete" />
+                        <Button fx:id="bSignOut" mnemonicParsing="false" text="Sign Out" />
                     </buttons>
                   </ButtonBar>
                </children>
