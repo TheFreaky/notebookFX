@@ -5,27 +5,28 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "events", schema = "notebook")
+@Table(name = "events")
 public class Event implements Serializable {
+    @Id
+    @Column(name = "event_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //used for primary key value generation
     private Long id;
+
+    @Column(name = "name", length = 80)
     private String name;
+
+    @Column(name = "description", length = -1)
     private String description;
+
+    @Column(name = "date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Event() {
-    }
-
-    public Event(String name, String description, Date date) {
-        this.name = name;
-        this.description = description;
-        this.date = date;
-    }
-
-    public Event(Long id, String name, String description, Date date) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.date = date;
     }
 
     public Event(Long id, Date date) {
@@ -33,8 +34,26 @@ public class Event implements Serializable {
         this.date = date;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //used for primary key value generation
+    public Event(String name, String description, Date date, User user) {
+        this.name = name;
+        this.description = description;
+        this.date = date;
+        this.user = user;
+    }
+
+    public Event(Long id, String name, String description, Date date) {
+        this(id, date);
+        this.name = name;
+        this.description = description;
+    }
+
+    public Event(Long id, String name, String description, Date date, User user) {
+        this(id, name, description, date);
+        this.user = user;
+    }
+
+
+
     public Long getId() {
         return id;
     }
@@ -43,7 +62,6 @@ public class Event implements Serializable {
         this.id = id;
     }
 
-    @Column(name = "name", length = 80)
     public String getName() {
         return name;
     }
@@ -52,7 +70,6 @@ public class Event implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "description", length = -1)
     public String getDescription() {
         return description;
     }
@@ -61,14 +78,20 @@ public class Event implements Serializable {
         this.description = description;
     }
 
-    @Column(name = "date", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     public Date getDate() {
         return date;
     }
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

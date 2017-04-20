@@ -4,10 +4,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import ru.kpfu.itis.notebook.entity.Event;
-import ru.kpfu.itis.notebook.model.EventService;
+import ru.kpfu.itis.notebook.entity.User;
+import ru.kpfu.itis.notebook.model.EventModel;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -16,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class FXMLDocumentController implements Initializable {
+public class NotebookMainController implements Initializable {
 
     @FXML
     private TextField tName, tDescription, tFind;
@@ -33,9 +38,22 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TableColumn<Event, Date> date;
 
-    private EventService eventService = new EventService();
-    private ObservableList<Event> observList = FXCollections.observableArrayList();
+    private EventModel eventModel;
+    private ObservableList<Event> observList;
     private Long key;
+
+    private User user;
+
+    public NotebookMainController() {
+        eventModel = new EventModel();
+        observList = FXCollections.observableArrayList();
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        eventModel.setUser(user);
+        read();
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,7 +66,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void read() {
-        List<Event> list = eventService.getAll();
+        List<Event> list = eventModel.getAll();
         showItems(list);
     }
 
@@ -59,7 +77,7 @@ public class FXMLDocumentController implements Initializable {
                 return;
             }
 
-            List<Event> list = eventService.find(tFind.getText());
+            List<Event> list = eventModel.find(tFind.getText());
             showItems(list);
         });
     }
@@ -86,8 +104,8 @@ public class FXMLDocumentController implements Initializable {
 
     public void save() {
         bSave.setOnAction(e -> {
-            Event event = new Event(tName.getText(), tDescription.getText(), getDate());
-            eventService.save(event);
+            Event event = new Event(tName.getText(), tDescription.getText(), getDate(), user);
+            eventModel.save(event);
             clear();
             read();
         });
@@ -95,8 +113,8 @@ public class FXMLDocumentController implements Initializable {
 
     public void update() {
         bUpdate.setOnAction(e -> {
-            Event event = new Event(key, tName.getText(), tDescription.getText(), getDate());
-            eventService.update(event);
+            Event event = new Event(key, tName.getText(), tDescription.getText(), getDate(), user);
+            eventModel.update(event);
             clear();
             read();
         });
@@ -105,7 +123,8 @@ public class FXMLDocumentController implements Initializable {
     public void delete() {
         bDelete.setOnAction(e -> {
             Event event = new Event(key, getDate());
-            eventService.delete(event);
+            event.setUser(user);
+            eventModel.delete(event);
             clear();
             read();
         });
